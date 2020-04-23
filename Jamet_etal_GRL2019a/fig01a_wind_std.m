@@ -1,6 +1,4 @@
 % Compute climatological winds in the traditional way
-%
-% TODO: mettre un masque pour l'atlantique nord
 
 clear all; close all;
 

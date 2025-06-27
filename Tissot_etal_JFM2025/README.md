@@ -1,4 +1,4 @@
-#Stochastic compressible Navier–Stokes equations under location uncertainty and its approximations for ocean modelling
+# Stochastic compressible Navier–Stokes equations under location uncertainty and its approximations for ocean modelling
 
 - CROCO model can be retrieve from: [https://gitlab.inria.fr/croco-ocean/croco](https://gitlab.inria.fr/croco-ocean/croco)
 

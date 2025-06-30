@@ -33,6 +33,7 @@
 #undef  JET             /* Baroclinic Jet Example */
 #undef  SHOREFACE       /* Shoreface Test Case on a Planar Beach */
 #undef  RIP             /* Rip Current Test Case */
+#undef  FLASH_RIP       /* Flash Rip Test Case */
 #undef  SANDBAR         /* Bar-generating Flume Example */
 #undef  SWASH           /* Swash Test Case on a Planar Beach */
 #undef  TANK            /* Tank Example */
@@ -41,7 +42,7 @@
 #undef  GRAV_ADJ        /* Graviational Adjustment Example */
 #undef  ISOLITON        /* Internal Soliton Example */
 #undef  KH_INST         /* Kelvin-Helmholtz Instability Example */
-#define  CONVECTION      /* Mediterranean winter convection Example *
+#define  CONVECTION      /* Mediterranean winter convection Example */
 #undef  TS_HADV_TEST    /* Horizontal tracer advection Example */
 #undef  DUNE            /* Dune migration Example */
 #undef  SED_TOY         /* 1DV sediment toy Example */
@@ -123,11 +124,6 @@
 #  undef  MPI_TIME
 # endif
 # undef  AUTOTILING
-                      /* Non-hydrostatic options */
-# ifdef NBQ
-#  define W_HADV_TVD
-#  define W_VADV_TVD
-# endif
                       /* Grid configuration */
 # define CURVGRID
 # define SPHERICAL
@@ -141,57 +137,6 @@
                       /* Equation of State */
 # define SALINITY
 # define NONLIN_EOS
-                      /* Surface Forcing */
-/*
-! Bulk flux algorithms (options)
-! by default : COARE3p0 paramet with GUSTINESS effects
-!
-! To change bulk param, define one the following keys (exclusive) :
-! - define BULK_ECUMEV0 : ECUME_v0 param
-! - define BULK_ECUMEV6 : ECUME_v6 param
-! - define BULK_WASP    : WASP param
-! Note : gustiness effects can be added for all params
-!        by defining BULK_GUSTINESS
-*/
-# undef  ABL1D
-# ifdef  ABL1D
-#  define BULK_FLUX
-#  undef  ANA_ABL_LSDATA
-#  undef  ANA_ABL_VGRID
-#  define STRESS_AT_RHO_POINTS
-#  define ABL_NUDGING
-#  define ABL_NUDGING_DYN
-#  define ABL_NUDGING_TRA
-#  undef  ABL_DYN_RESTORE_EQ
-#  undef  SFLUX_CFB
-# else
-#  define BULK_FLUX
-# endif
-# ifdef BULK_FLUX
-#  undef  BULK_ECUMEV0
-#  undef  BULK_ECUMEV6
-#  undef  BULK_WASP
-#  define BULK_GUSTINESS
-#  define BULK_LW
-#  undef  SST_SKIN
-#  undef  ANA_DIURNAL_SW
-#  undef  ONLINE
-#  ifdef ONLINE
-#   undef  AROME
-#   undef  ERA_ECMWF
-#  endif
-#  undef READ_PATM
-#  ifdef READ_PATM
-#   define OBC_PATM
-#  endif
-# else
-#  define QCORRECTION
-#  define SFLX_CORR
-#  undef  SFLX_CORR_COEF
-#  define ANA_DIURNAL_SW
-# endif
-# undef  SFLUX_CFB
-# undef  SEA_ICE_NOFLUX
                       /* Lateral Forcing */
 # undef CLIMATOLOGY
 # ifdef CLIMATOLOGY
@@ -214,6 +159,55 @@
 #  define M3_FRC_BRY
 #  define T_FRC_BRY
 # endif
+                      /* Surface Forcing */
+/*
+! Bulk flux algorithms (options)
+! by default : COARE3p0 paramet with GUSTINESS effects
+!
+! To change bulk param, define one the following keys (exclusive) :
+! - define BULK_ECUMEV0 : ECUME_v0 param
+! - define BULK_ECUMEV6 : ECUME_v6 param
+! - define BULK_WASP    : WASP param
+! Note : gustiness effects can be added for all params
+!        by defining BULK_GUSTINESS
+*/
+# define BULK_FLUX
+# ifdef BULK_FLUX
+#  undef  BULK_ECUMEV0
+#  undef  BULK_ECUMEV6
+#  undef  BULK_WASP
+#  define BULK_GUSTINESS
+#  define BULK_LW
+#  undef  SST_SKIN
+#  undef  ANA_DIURNAL_SW
+#  undef  ONLINE
+#  ifdef ONLINE
+#   undef  AROME
+#   undef  ERA_ECMWF
+#  endif
+#  undef READ_PATM
+#  ifdef READ_PATM
+#   define OBC_PATM
+#  endif
+#  undef  ABL1D
+#  ifdef  ABL1D
+#   undef  ANA_ABL_LSDATA
+#   undef  ANA_ABL_VGRID
+#   define STRESS_AT_RHO_POINTS
+#   define ABL_NUDGING
+#   define ABL_NUDGING_DYN
+#   define ABL_NUDGING_TRA
+#   undef  ABL_DYN_RESTORE_EQ
+#   undef  SFLUX_CFB
+#  endif
+# else
+#  define QCORRECTION
+#  define SFLX_CORR
+#  undef  SFLX_CORR_COEF
+#  define ANA_DIURNAL_SW
+# endif
+# undef  SFLUX_CFB
+# undef  SEA_ICE_NOFLUX
                       /* Lateral Momentum Advection (default UP3) */
 # define UV_HADV_UP3
 # undef  UV_HADV_UP5
@@ -315,23 +309,6 @@
 # undef  HOURLY_VELOCITIES
                      /* Exact restart */
 # undef EXACT_RESTART
-                      /* Parallel reproducibility or restartabilty test */
-# undef RVTK_DEBUG
-# undef RVTK_DEBUG_PERFRST
-# if defined RVTK_DEBUG && !defined RVTK_DEBUG_PERFRST
-!    Parallel reproducibility test
-#  undef RVTK_DEBUG_ADVANCED
-#  define XXXRVTK_DEBUG_READ
-# elif defined RVTK_DEBUG && defined RVTK_DEBUG_PERFRST
-!    Restartability test
-#  define EXACT_RESTART
-#  undef RVTK_DEBUG_ADVANCED
-#  define XXXRVTK_DEBUG_READ
-# endif
-!    RVTK test (Restartability or Parallel reproducibility)
-# if defined RVTK_DEBUG && defined BULK_FLUX && defined ONLINE
-#  define BULK_MONTH_1DIGIT
-# endif
 /*
 !                        Diagnostics
 !--------------------------------------------
@@ -350,6 +327,10 @@
 # ifdef DIAGNOSTICS_TS
 #  undef  DIAGNOSTICS_TS_ADV
 #  undef  DIAGNOSTICS_TS_MLD
+#  ifdef DIAGNOSTICS_TS_MLD
+#   define DIAGNOSTICS_TS_MLD_CRIT
+#  endif
+
 # endif
 
 # undef DIAGNOSTICS_TSVAR
@@ -404,7 +385,7 @@
 #   define key_pisces
 #   define key_ligand
 #   undef key_pisces_quota
-#   undef key_pisces_light
+#   undef key_pisces_npzd
 #   undef key_sediment
 #  endif
 #  ifdef BIO_NChlPZD
@@ -488,7 +469,7 @@
 # define FILLVAL
                       /* Calendar */
 
-# undef USE_CALENDAR
+# define USE_CALENDAR
                       /* dedicated croco.log file */
 # undef  LOGFILE
 /*!
@@ -648,7 +629,6 @@
 #  define MUSTANG_CORFLUX
 #  undef  key_tauskin_c_upwind
 #  define WAVE_OFFLINE
-#  undef  key_MUSTANG_specif_outputs
 # endif
 /*
 !
@@ -676,7 +656,6 @@
 # define ANA_STFLUX
 # define ANA_BTFLUX
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined CANYON
 /*
@@ -696,7 +675,6 @@
 # define ANA_STFLUX
 # define ANA_BTFLUX
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined EQUATOR
 /*
@@ -726,7 +704,6 @@
 # define LMD_RIMIX
 # define LMD_CONVEC
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined INNERSHELF
 /*
@@ -774,7 +751,6 @@
 #  endif
 # endif
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined SINGLE_COLUMN
 /*
@@ -783,13 +759,20 @@
 !
 !                              Seven  sets up are encompassed :
 */
-# define KATO_PHILIPS        /* erosion of linear strat by constant wind stress */
-# undef  WILLIS_DEARDORFF    /* erosion of linear strat by constant surf buoyancy loss */
-# undef  DIURNAL_CYCLE       /* erosion of linear strat by constant surf buoyancy loss */
-# undef  FORCED_EKBBL        /* forced Ekman bottom boundary layer */
-# undef  FORCED_DBLEEK       /* forced Ekman bottom and surface boundary layers */
-# undef  FORCED_NONROTBBL    /* non rotating forced bottom boundary layer : Prandt layer */
-# undef  FORCED_OSCNONROTBBL /* non rotating oscillatory forced bottom boundary layer */
+/* erosion of linear strat by constant wind stress */
+# define KATO_PHILIPS
+/* erosion of linear strat by constant surf buoyancy loss */
+# undef  WILLIS_DEARDORFF
+/* erosion of linear strat by constant surf buoyancy loss */
+# undef  DIURNAL_CYCLE
+/* forced Ekman bottom boundary layer */
+# undef  FORCED_EKBBL
+/* forced Ekman bottom and surface boundary layers */
+# undef  FORCED_DBLEEK
+/* non rotating forced bottom boundary layer : Prandt layer */
+# undef  FORCED_NONROTBBL
+/* non rotating oscillatory forced bottom boundary layer */
+# undef  FORCED_OSCNONROTBBL
 # undef  OPENMP
 # undef  MPI
 # define UV_ADV
@@ -806,7 +789,6 @@
 # define ANA_BTFLUX
 # define EW_PERIODIC
 # define NS_PERIODIC
-# undef  RVTK_DEBUG
 
 #elif defined INTERNAL
 /*
@@ -849,7 +831,6 @@
 #  define TNUDGING
 # endif
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined IGW
 /*
@@ -900,7 +881,6 @@
 # define M3NUDGING
 # define TNUDGING
 # undef  ONLINE_ANALYSIS
-# undef  RVTK_DEBUG
 
 #elif defined RIVER
 /*
@@ -942,7 +922,6 @@
 #  endif
 # endif
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined SEAMOUNT
 /*
@@ -965,7 +944,6 @@
 # define ANA_BTFLUX
 # define ANA_BSFLUX
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined SHELFRONT
 /*
@@ -988,7 +966,6 @@
 # define ANA_BSFLUX
 # define EW_PERIODIC
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined SOLITON
 /*
@@ -1006,7 +983,6 @@
 # define ANA_SMFLUX
 # define ANA_BTFLUX
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined THACKER
 /*
@@ -1032,7 +1008,6 @@
 # define ANA_SRFLUX
 # define ANA_STFLUX
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined OVERFLOW
 /*
@@ -1053,7 +1028,6 @@
 # define ANA_STFLUX
 # define ANA_BTFLUX
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined UPWELLING
 /*
@@ -1083,7 +1057,6 @@
 # define LMD_CONVEC
 # define EW_PERIODIC
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined VORTEX
 /*
@@ -1117,7 +1090,6 @@
 # define M3NUDGING
 # define TNUDGING
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined JET
 /*
@@ -1169,7 +1141,6 @@
 #  define LMD_CONVEC
 # endif
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined SHOREFACE
 /*
@@ -1222,7 +1193,6 @@
 #  define TNUDGING
 #  define ANA_TCLIMA
 # endif
-# undef  RVTK_DEBUG
 
 #elif defined SANDBAR
 /*
@@ -1232,8 +1202,10 @@
 !   Roelvink, J. A. and Reniers, A. (1995). Lip 11d delta flume experiments
 !   – data report. Technical report, Delft, The Netherlands, Delft Hydraulics
 */
-# define SANDBAR_OFFSHORE /* LIP-1B */
-# undef  SANDBAR_ONSHORE  /* LIP-1C */
+/* LIP-1B */
+# define SANDBAR_OFFSHORE
+/* LIP-1C */
+# undef  SANDBAR_ONSHORE
 # undef  OPENMP
 # undef  MPI
 # undef  NBQ
@@ -1251,7 +1223,8 @@
 # define OBC_WEST
 # define SPONGE
 # define WET_DRY
-# ifndef NBQ /* ! NBQ */
+/* ! NBQ */
+# ifndef NBQ 
 #  define MRL_WCI
 #  ifdef MRL_WCI
 #   define WKB_WWAVE
@@ -1260,7 +1233,6 @@
 #   define WAVE_ROLLER
 #   define WAVE_FRICTION
 #   define WAVE_BREAK_TG86
-#   define WAVE_BREAK_SWASH
 #   define WAVE_STREAMING
 #   undef  WAVE_RAMP
 #  endif
@@ -1270,10 +1242,11 @@
 #  ifdef LMD_MIXING
 #   define LMD_SKPP
 #   define LMD_BKPP
-#   define LMD_VMIX_SWASH
 #  endif
 #  define BBL
-# else /* NBQ */
+#  define BBL_BREAKING_STIR
+/* NBQ */
+# else
 #  define MPI
 #  define NBQ_PRECISE
 #  define WAVE_MAKER
@@ -1292,7 +1265,8 @@
 #  define AVERAGES
 #  define AVERAGES_K
 #  define DIAGNOSTICS_EDDY
-# endif /* NBQ */
+/* NBQ */
+# endif 
 # define SEDIMENT
 # ifdef SEDIMENT
 #  define SUSPLOAD
@@ -1313,25 +1287,24 @@
 #  define DIAGNOSTICS_TS_ADV
 # endif
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined RIP
 /*
 !                       Rip Current Example
 !                       === ======= =======
 !
-!   Weir, B., Uchiyama, Y.. (2010):
+!   Weir, B., Uchiyama, Y. (2010):
 !      A vortex force analysis of the interaction of rip
 !      currents and surface gravity wave
 !      JGR Vol. 116
 !
-!  Default is idealized Duck Beach with 3D topography
+!  Default is an idealized Duck Beach wave-averaged simulation
+!  with 3D topography
+!
 !  RIP_TOPO_2D: Logshore uniform topography
 !  BISCA: realistic case with Input files
-!  GRANDPOPO: idealized Grand Popo Beach in Benin,
-!              longshore uniform
-!  WAVE_MAKER & NBQ : wave resolving simulation
-!                     rather than wave-averaged (#undef MRL_WCI)
+!  GRANDPOPO: idealized Grand Popo Beach in Benin
+!  WAVE_MAKER & NBQ : wave-resolving (#undef MRL_WCI)
 */
 # undef  BISCA
 # undef  RIP_TOPO_2D
@@ -1356,6 +1329,7 @@
 #  define W_HADV_WENO5
 #  define W_VADV_WENO5
 #  define GLS_MIXING_3D
+#  define GLS_KOMEGA
 #  undef  ANA_TIDES
 #  undef  MRL_WCI
 #  define OBC_SPECIFIED_WEST
@@ -1375,14 +1349,12 @@
 #  define LMD_BKPP
 #  define MRL_WCI
 # endif
-# define WET_DRY
 # ifdef MRL_WCI
 #  define WKB_WWAVE
 #  define WKB_OBC_WEST
 #  define WAVE_ROLLER
 #  define WAVE_FRICTION
 #  define WAVE_STREAMING
-#  define WAVE_BREAK_SWASH
 #  define MRL_CEW
 #  ifdef RIP_TOPO_2D
 #   define WAVE_RAMP
@@ -1398,14 +1370,15 @@
 # define ANA_SRFLUX
 # define ANA_SST
 # define ANA_BTFLUX
+# define OBC_WEST
+# define SPONGE
+# define WET_DRY
 # if !defined BISCA && !defined ANA_TIDES
 #  define NS_PERIODIC
 # else
 #  define OBC_NORTH
 #  define OBC_SOUTH
 # endif
-# define OBC_WEST
-# define SPONGE
 # ifdef ANA_TIDES
 #  define ANA_SSH
 #  define ANA_M2CLIMA
@@ -1426,15 +1399,76 @@
 #  undef  MORPHODYN
 # endif
 # undef  DIAGNOSTICS_UV
-# undef  RVTK_DEBUG
+
+#elif defined FLASH_RIP
+/*
+!                       Flash Rip Example
+!                       ===== === =======
+!
+!   Semi-idealized case based on the IB09 experiment.
+!
+!   Hally-Rosendahl, K., Feddersen, F. (2016):
+!      Modeling surfzone to inner-shelf tracer exchange
+!      JGR Vol. 121
+!   Treillou, S. et al. (in review for JPO, 2025):
+!      Tracer dispersion by surfzone eddies: assessing 
+!      the impact of undertow vertical shear
+*/
+# undef  MPI
+# undef  NC4PAR
+# define SOLVE3D
+# define NEW_S_COORD
+# define UV_ADV
+# define NO_TRACER
+# define NO_TEMPERATURE
+# undef  PASSIVE_TRACER
+# undef  ANA_TIDES
+# define NBQ
+# define NBQ_PRECISE
+# define LIMIT_BSTRESS
+# define WAVE_MAKER
+# define WAVE_MAKER_SPECTRUM
+# define WAVE_MAKER_DSPREAD
+# define UV_HADV_WENO5
+# define UV_VADV_WENO5
+# define W_HADV_WENO5
+# define W_VADV_WENO5
+# define GLS_MIXING_3D
+# define GLS_KOMEGA
+# define NS_PERIODIC
+# define OBC_WEST
+# define OBC_SPECIFIED_WEST
+# define SPONGE
+# define FRC_BRY
+# define ANA_BRY
+# define Z_FRC_BRY
+# define M2_FRC_BRY
+# define M3_FRC_BRY
+# define T_FRC_BRY
+# define WET_DRY
+# define ANA_GRID
+# define ANA_INITIAL
+# define ANA_SMFLUX
+# define ANA_STFLUX
+# define ANA_SSFLUX
+# define ANA_SRFLUX
+# define ANA_SST
+# define ANA_BTFLUX
+# define AVERAGES
+# define AVERAGES_K
+# undef  DIAGNOSTICS_EDDY
 
 #elif defined SWASH
 /*
 !                       SWASH PLANAR BEACH Example
 !                       ===== ====== ===== =======
 !
+!  Simulation of GLOBEX experiments.
+!  Marchesiello et al. (Ocean Modelling 2021):
+!  
 */
-# define SWASH_GLOBEX_B2
+# define SWASH_GLOBEX_B3
+# undef  SWASH_GLOBEX_B2
 # undef  SWASH_GLOBEX_A3
 # undef  OPENMP
 # undef  MPI
@@ -1449,6 +1483,7 @@
 # define W_HADV_WENO5
 # define W_VADV_WENO5
 # define GLS_MIXING_3D
+# define GLS_KOMEGA
 # define NEW_S_COORD
 # define ANA_GRID
 # define ANA_INITIAL
@@ -1459,7 +1494,7 @@
 # define ANA_SST
 # define ANA_BTFLUX
 # define OBC_WEST
-# define OBC_SPECIFIED_WEST
+# undef  OBC_SPECIFIED_WEST
 # define ANA_BRY
 # define Z_FRC_BRY
 # define M2_FRC_BRY
@@ -1467,7 +1502,6 @@
 # define T_FRC_BRY
 # define WET_DRY
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined TANK
 /*
@@ -1480,10 +1514,7 @@
 */
 # undef  MPI
 # define NBQ
-# ifdef NBQ
-#  define NBQ_PRECISE
-# endif
-# define M2FILTER_NONE
+# define NBQ_PRECISE
 # define SOLVE3D
 # undef  UV_ADV
 # define NEW_S_COORD
@@ -1494,7 +1525,6 @@
 # define ANA_SRFLUX
 # define ANA_STFLUX
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined MOVING_BATHY
 /*
@@ -1510,7 +1540,6 @@
 # define ANA_MORPHODYN
 # define NBQ
 # define NBQ_PRECISE
-# define M2FILTER_NONE
 # define SOLVE3D
 # define NEW_S_COORD
 # undef  PASSIVE_TRACER
@@ -1529,7 +1558,6 @@
 # define ANA_SRFLUX
 # define ANA_STFLUX
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined ACOUSTIC
 /*
@@ -1551,7 +1579,6 @@
 # define ANA_SRFLUX
 # define ANA_BTFLUX
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined GRAV_ADJ
 /*
@@ -1581,7 +1608,6 @@
 # define ANA_BTFLUX
 # undef  PASSIVE_TRACER
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined ISOLITON
 /*
@@ -1615,7 +1641,6 @@
 # define ANA_BTFLUX
 # undef  PASSIVE_TRACER
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined KH_INST
 /*
@@ -1654,7 +1679,6 @@
 #  define NS_PERIODIC
 # endif
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined CONVECTION
 /*
@@ -1664,13 +1688,13 @@
 */
 # define EXACT_RESTART
 # define MPI
-# undef  NBQ
-# undef  M3FAST
-# undef  M3FAST_HIST
-# undef  M3FAST_COUPLING1
-# undef  M3FAST_COUPLING2D
+# define NBQ
+# define M3FAST
+# define M3FAST_HIST
+# undef  NBQ_PRECISE
+# define M3FAST_COUPLING1
+# define M3FAST_COUPLING2D
 # define DIAG_CFL
-# define  STO_LU
 # define TS_DIF2
 # undef  XIOS
 # define UV_COR_NT
@@ -1710,9 +1734,12 @@
 !                       ========== ====== ========= =======
 !
 */
-# undef  SOLID_BODY_ROT   /* Example with spatially varying velocity */
-# undef  DIAGONAL_ADV     /*    Constant advection in the diagonal   */
-# define SOLID_BODY_PER   /* Example with a space and time-varying velocity */
+/* Example with spatially varying velocity */
+# undef  SOLID_BODY_ROT
+/* Constant advection in the diagonal   */
+# undef  DIAGONAL_ADV
+/* Example with a space and time-varying velocity */
+# define SOLID_BODY_PER
 
 # undef  OPENMP
 # undef  MPI
@@ -1735,12 +1762,12 @@
 # define EW_PERIODIC
 # define NS_PERIODIC
 
-# define TS_HADV_UP3    /* Choose specific advection scheme */
+/* Choose specific advection scheme */
+# define TS_HADV_UP3
 # undef  TS_HADV_C4
 # undef  TS_HADV_UP5
 # undef  TS_HADV_WENO5
 # undef  TS_HADV_C6
-# undef  RVTK_DEBUG
 
 #elif defined DUNE
 /*
@@ -1748,8 +1775,10 @@
 !                       ==== ==== ==== =======
 !
 */
-# undef  ANA_DUNE     /* Analytical test case (Marieu) */
-# undef  DUNE3D       /* 3D Dune example */
+/* Analytical test case (Marieu) */
+# undef  ANA_DUNE
+/* 3D Dune example */
+# undef  DUNE3D
 
 # undef  OPENMP
 # undef  MPI
@@ -1793,19 +1822,24 @@
 # endif
 # define GLS_MIXING
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined SED_TOY
 /*
 !                       SED TOY (1D Single Column example)
 !                       === === === ====== ====== ========
 !
-*/                            /* Choose an experiment :               */
-# define SED_TOY_ROUSE        /*   Rouse                              */
-# undef  SED_TOY_CONSOLID     /*   Consolidation                      */
-# undef  SED_TOY_RESUSP       /*   Erosion and sediment resuspension  */
-# undef  SED_TOY_FLOC_0D      /*   Flocculation                       */
-# undef  SED_TOY_FLOC_1D      /*   Flocculation                       */
+*/ 
+/* Choose an experiment :               */
+/*   Rouse                              */
+# define SED_TOY_ROUSE
+/*   Consolidation                      */ 
+# undef  SED_TOY_CONSOLID
+/*   Erosion and sediment resuspension  */
+# undef  SED_TOY_RESUSP
+/*   Flocculation                       */
+# undef  SED_TOY_FLOC_0D
+/*   Flocculation                       */
+# undef  SED_TOY_FLOC_1D
 
 # undef  OPENMP
 # undef  MPI
@@ -1879,7 +1913,6 @@
 # endif
 # undef  MORPHODYN
 # define NO_FRCFILE
-# undef  RVTK_DEBUG
 
 #elif defined KILPATRICK
 /*
@@ -1968,7 +2001,6 @@
 # endif
 # define NO_FRCFILE
 # undef  ZETA_DRY_IO
-# undef  RVTK_DEBUG
 
 #elif defined ESTUARY
 /*
@@ -2021,13 +2053,14 @@
 # ifdef MUSTANG
 #  define key_sand2D
 #  undef  key_MUSTANG_V2
+#  define MUSTANG_CORFLUX
+#  define SUBSTANCE_SUBMASSBALANCE 
 # endif
 # define PSOURCE
 # define ANA_PSOURCE
 # define MASKING
 # define NO_FRCFILE
 # undef  ZETA_DRY_IO
-# undef  RVTK_DEBUG
 
 #elif defined SEAGRASS
 /*
@@ -2072,7 +2105,6 @@
 #  undef  M3_FRC_BRY
 #  define T_FRC_BRY
 # endif
-# undef  RVTK_DEBUG
 
 #endif /* END OF CONFIGURATION CHOICE */
 
